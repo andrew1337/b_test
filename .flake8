@@ -13,3 +13,4 @@ max-complexity = 10
 ignore = 
     E401, # multiple imports in one line
     E501, # line length
+    W503, # line break before binary operator

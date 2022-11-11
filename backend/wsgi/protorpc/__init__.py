@@ -17,5 +17,5 @@
 
 """Main module for ProtoRPC package."""
 
-__author__ = 'rafek@google.com (Rafe Kaplan)'
-__version__ = '1.0'
+__author__ = "rafek@google.com (Rafe Kaplan)"
+__version__ = "1.0"

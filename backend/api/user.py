@@ -84,13 +84,15 @@ class User(remote.Service):
     @swagger("Create a user")
     @remote.method(CreateRequest, TokenResponse)
     def create(self, request):
-        u = user.User.create(email=request.email, password=request.password, name=request.name)
+        u = user.User.create(
+            email=request.email, password=request.password, name=request.name
+        )
         session = Oauth2.create(u.key)
 
         return TokenResponse(
             access_token=session.access_token.token,
             expires=time.mktime(session.access_token.expires.timetuple()),
-            refresh_token=session.refresh_token.token
+            refresh_token=session.refresh_token.token,
         )
 
     @swagger("Renew user token")
@@ -101,7 +103,7 @@ class User(remote.Service):
         return TokenResponse(
             access_token=session.access_token.token,
             expires=time.mktime(session.access_token.expires.timetuple()),
-            refresh_token=session.refresh_token.token
+            refresh_token=session.refresh_token.token,
         )
 
     @swagger("User login")
@@ -113,7 +115,7 @@ class User(remote.Service):
         return TokenResponse(
             access_token=session.access_token.token,
             expires=time.mktime(session.access_token.expires.timetuple()),
-            refresh_token=session.refresh_token.token
+            refresh_token=session.refresh_token.token,
         )
 
     @swagger("User logout")
@@ -128,17 +130,12 @@ class User(remote.Service):
     @remote.method(GetRequest, GetResponse)
     def get(self, request):
         u = user.User.get(request.id)
-        return GetResponse(
-            id=u.id,
-            name=u.name
-        )
+        return GetResponse(id=u.id, name=u.name)
 
     @oauth2.required()
     @remote.method(message_types.VoidMessage, EmailVerifiedResponse)
     def email_verified(self, request):
-        return EmailVerifiedResponse(
-            email_verified=self.session.user.email_verified
-        )
+        return EmailVerifiedResponse(email_verified=self.session.user.email_verified)
 
     @oauth2.required()
     @remote.method(message_types.VoidMessage, MeResponse)
@@ -149,7 +146,7 @@ class User(remote.Service):
             email=u.email,
             email_verified=u.email_verified,
             name=u.name,
-            phone=u.phone
+            phone=u.phone,
         )
 
     @swagger("Search users")
@@ -162,23 +159,26 @@ class User(remote.Service):
         else:
             users = user.User.search(request.search, offset=request.offset)
 
-        return SearchResponse(users=[SearchResult(
-            id=u.id,
-            name=u.name
-        ) for u in users if u is not None])
+        return SearchResponse(
+            users=[SearchResult(id=u.id, name=u.name) for u in users if u is not None]
+        )
 
     @swagger("Update password")
     @oauth2.required()
     @remote.method(UpdatePasswordRequest, message_types.VoidMessage)
     def update_password(self, request):
-        self.session.user.update_password(current_password=request.current_password, password=request.password)
+        self.session.user.update_password(
+            current_password=request.current_password, password=request.password
+        )
         return message_types.VoidMessage()
 
     @swagger("Update email")
     @oauth2.required()
     @remote.method(UpdateEmailRequest, message_types.VoidMessage)
     def update_email(self, request):
-        self.session.user.update_email(current_password=request.current_password, email=request.email)
+        self.session.user.update_email(
+            current_password=request.current_password, email=request.email
+        )
         return message_types.VoidMessage()
 
     @swagger("Update a user")

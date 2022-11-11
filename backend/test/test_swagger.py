@@ -37,192 +37,154 @@ class Swagger3(wsgi.Service):
 
 
 class TestSwagger(test.TestCase):
-
     def test_message_to_schema(self):
-        self.assertEqual(swagger.message_to_schema(TestResponse), {
-            'properties': {
-                'id': {
-                    'type': 'string'
-                },
-                'nested': {
-                    'items': {
-                        'properties': {
-                            'test': {
-                                'type': 'boolean'
-                            }
+        self.assertEqual(
+            swagger.message_to_schema(TestResponse),
+            {
+                "properties": {
+                    "id": {"type": "string"},
+                    "nested": {
+                        "items": {
+                            "properties": {"test": {"type": "boolean"}},
+                            "type": "object",
                         },
-                        'type': 'object'
+                        "type": "array",
                     },
-                    'type': 'array'
+                    "value": {"type": "integer"},
                 },
-                'value': {
-                    'type': 'integer'
-                }
+                "required": ["id"],
+                "type": "object",
             },
-            'required': ['id'],
-            'type': 'object'
-        })
-        self.assertEqual(swagger.message_to_schema(message_types.VoidMessage), {
-            'type': 'object'
-        })
+        )
+        self.assertEqual(
+            swagger.message_to_schema(message_types.VoidMessage), {"type": "object"}
+        )
 
     def test_service_to_definition(self):
-        self.assertEqual(swagger.service_to_definition(Swagger2), {
-            'info': {
-                'version': '',
-                'description': '',
-                'title': ''
-            },
-            'paths': {
-                '.test': {
-                    'post': {
-                        'responses': {
-                            '200': {
-                                'description': 'OK',
-                                'schema': {
-                                    'properties': {
-                                        'id': {
-                                            'type': 'string'
-                                        },
-                                        'nested': {
-                                            'items': {
-                                                'properties': {
-                                                    'test': {
-                                                        'type': 'boolean'
-                                                    }
+        self.assertEqual(
+            swagger.service_to_definition(Swagger2),
+            {
+                "info": {"version": "", "description": "", "title": ""},
+                "paths": {
+                    ".test": {
+                        "post": {
+                            "responses": {
+                                "200": {
+                                    "description": "OK",
+                                    "schema": {
+                                        "properties": {
+                                            "id": {"type": "string"},
+                                            "nested": {
+                                                "items": {
+                                                    "properties": {
+                                                        "test": {"type": "boolean"}
+                                                    },
+                                                    "type": "object",
                                                 },
-                                                'type': 'object'
+                                                "type": "array",
                                             },
-                                            'type': 'array'
+                                            "value": {"type": "integer"},
                                         },
-                                        'value': {
-                                            'type': 'integer'
-                                        }
+                                        "required": ["id"],
+                                        "type": "object",
                                     },
-                                    'required': ['id'],
-                                    'type': 'object'
-                                }
-                            },
-                            '400': {
-                                'description': 'Bad Request',
-                                'schema': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'error_name': {
-                                            'type': 'string'
+                                },
+                                "400": {
+                                    "description": "Bad Request",
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "error_name": {"type": "string"},
+                                            "error_message": {"type": "string"},
+                                            "state": {"type": "string"},
                                         },
-                                        'error_message': {
-                                            'type': 'string'
-                                        },
-                                        'state': {
-                                            'type': 'string'
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        'parameters': [{
-                            'schema': {
-                                'type': 'object'
+                                    },
+                                },
                             },
-                            'name': '',
-                            'in': 'body'
-                        }],
-                        'produces': ['application/json'],
-                        'summary': 'Test method',
-                        'consumes': ['application/json'],
-                        'description': ''
+                            "parameters": [
+                                {"schema": {"type": "object"}, "name": "", "in": "body"}
+                            ],
+                            "produces": ["application/json"],
+                            "summary": "Test method",
+                            "consumes": ["application/json"],
+                            "description": "",
+                        }
                     }
-                }
+                },
+                "schemes": ["https"],
+                "tags": [],
+                "basePath": "/api/swagger2",
+                "securityDefinitions": {
+                    "Bearer": {
+                        "type": "apiKey",
+                        "name": "Authorization",
+                        "in": "header",
+                    }
+                },
+                "host": None,
+                "swagger": "2.0",
             },
-            'schemes': ['https'],
-            'tags': [],
-            'basePath': '/api/swagger2',
-            'securityDefinitions': {
-                'Bearer': {
-                    'type': 'apiKey',
-                    'name': 'Authorization',
-                    'in': 'header'
-                }
-            },
-            'host': None,
-            'swagger': '2.0'
-        })
-        self.assertEqual(swagger.service_to_definition(Swagger3), {
-            'info': {
-                'version': '',
-                'description': '',
-                'title': ''
-            },
-            'paths': {
-                '.test': {
-                    'post': {
-                        'responses': {
-                            '200': {
-                                'description': 'OK',
-                                'schema': {
-                                    'properties': {
-                                        'id': {
-                                            'type': 'string'
-                                        },
-                                        'nested': {
-                                            'items': {
-                                                'properties': {
-                                                    'test': {
-                                                        'type': 'boolean'
-                                                    }
+        )
+        self.assertEqual(
+            swagger.service_to_definition(Swagger3),
+            {
+                "info": {"version": "", "description": "", "title": ""},
+                "paths": {
+                    ".test": {
+                        "post": {
+                            "responses": {
+                                "200": {
+                                    "description": "OK",
+                                    "schema": {
+                                        "properties": {
+                                            "id": {"type": "string"},
+                                            "nested": {
+                                                "items": {
+                                                    "properties": {
+                                                        "test": {"type": "boolean"}
+                                                    },
+                                                    "type": "object",
                                                 },
-                                                'type': 'object'
+                                                "type": "array",
                                             },
-                                            'type': 'array'
-                                        }
+                                        },
+                                        "required": ["id"],
+                                        "type": "object",
                                     },
-                                    'required': ['id'],
-                                    'type': 'object'
-                                }
-                            },
-                            '400': {
-                                'description': 'Bad Request',
-                                'schema': {
-                                    'type': 'object',
-                                    'properties': {
-                                        'error_name': {
-                                            'type': 'string'
+                                },
+                                "400": {
+                                    "description": "Bad Request",
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "error_name": {"type": "string"},
+                                            "error_message": {"type": "string"},
+                                            "state": {"type": "string"},
                                         },
-                                        'error_message': {
-                                            'type': 'string'
-                                        },
-                                        'state': {
-                                            'type': 'string'
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        'parameters': [{
-                            'schema': {
-                                'type': 'object'
+                                    },
+                                },
                             },
-                            'name': '',
-                            'in': 'body'
-                        }],
-                        'produces': ['application/json'],
-                        'summary': 'Test method',
-                        'consumes': ['application/json'],
-                        'description': ''
+                            "parameters": [
+                                {"schema": {"type": "object"}, "name": "", "in": "body"}
+                            ],
+                            "produces": ["application/json"],
+                            "summary": "Test method",
+                            "consumes": ["application/json"],
+                            "description": "",
+                        }
                     }
-                }
+                },
+                "schemes": ["https"],
+                "tags": [],
+                "basePath": "/api/swagger3",
+                "securityDefinitions": {
+                    "Bearer": {
+                        "type": "apiKey",
+                        "name": "Authorization",
+                        "in": "header",
+                    }
+                },
+                "host": None,
+                "swagger": "2.0",
             },
-            'schemes': ['https'],
-            'tags': [],
-            'basePath': '/api/swagger3',
-            'securityDefinitions': {
-                'Bearer': {
-                    'type': 'apiKey',
-                    'name': 'Authorization',
-                    'in': 'header'
-                }
-            },
-            'host': None,
-            'swagger': '2.0'
-        })
+        )

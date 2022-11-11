@@ -20,156 +20,167 @@
 Small collection of helpful utilities for working with WSGI.
 """
 
-__author__ = 'rafek@google.com (Rafe Kaplan)'
+__author__ = "rafek@google.com (Rafe Kaplan)"
 
 import http.client
 import re
 
 from .. import util
 
-__all__ = ['static_page',
-           'error',
-           'first_found',
+__all__ = [
+    "static_page",
+    "error",
+    "first_found",
 ]
 
-_STATUS_PATTERN = re.compile('^(\d{3})\s')
+_STATUS_PATTERN = re.compile("^(\d{3})\s")
 
 
 @util.positional(1)
-def static_page(content='',
-                status='200 OK',
-                content_type='text/html; charset=utf-8',
-                headers=None):
-  """Create a WSGI gunicorn that serves static content.
+def static_page(
+    content="", status="200 OK", content_type="text/html; charset=utf-8", headers=None
+):
+    """Create a WSGI gunicorn that serves static content.
 
-  A static page is one that will be the same every time it receives a request.
-  It will always serve the same status, content and headers.
+    A static page is one that will be the same every time it receives a request.
+    It will always serve the same status, content and headers.
 
-  Args:
-    content: Content to serve in response to HTTP request.
-    status: Status to serve in response to HTTP request.  If string, status
-      is served as is without any error checking.  If integer, will look up
-      status message.  Otherwise, parameter is tuple (status, description):
-        status: Integer status of response.
-        description: Brief text description of response.
-    content_type: Convenient parameter for content-type header.  Will appear
-      before any content-type header that appears in 'headers' parameter.
-    headers: Dictionary of headers or iterable of tuples (name, value):
-      name: String name of header.
-      value: String value of header.
+    Args:
+      content: Content to serve in response to HTTP request.
+      status: Status to serve in response to HTTP request.  If string, status
+        is served as is without any error checking.  If integer, will look up
+        status message.  Otherwise, parameter is tuple (status, description):
+          status: Integer status of response.
+          description: Brief text description of response.
+      content_type: Convenient parameter for content-type header.  Will appear
+        before any content-type header that appears in 'headers' parameter.
+      headers: Dictionary of headers or iterable of tuples (name, value):
+        name: String name of header.
+        value: String value of header.
 
-  Returns:
-    WSGI gunicorn that serves static content.
-  """
-  if isinstance(status, int):
-    status = '%d %s' % (status, http.client.responses.get(status, 'Unknown Error'))
-  elif not isinstance(status, str):
-    status = '%d %s' % tuple(status)
+    Returns:
+      WSGI gunicorn that serves static content.
+    """
+    if isinstance(status, int):
+        status = "%d %s" % (status, http.client.responses.get(status, "Unknown Error"))
+    elif not isinstance(status, str):
+        status = "%d %s" % tuple(status)
 
-  if isinstance(headers, dict):
-    headers = iter(headers.items())
+    if isinstance(headers, dict):
+        headers = iter(headers.items())
 
-  headers = [('content-length', str(len(content))),
-             ('content-type', content_type),
-            ] + list(headers or [])
-  
-  # Ensure all headers are str.
-  for index, (key, value) in enumerate(headers):
-    if not isinstance(key, str):
-      raise TypeError('Header key must be str, found: %r' % (key,))
+    headers = [
+        ("content-length", str(len(content))),
+        ("content-type", content_type),
+    ] + list(headers or [])
 
-    if not isinstance(value, str):
-      raise TypeError(
-          'Header %r must be type str or unicode, found: %r' % (key, value))
+    # Ensure all headers are str.
+    for index, (key, value) in enumerate(headers):
+        if not isinstance(key, str):
+            raise TypeError("Header key must be str, found: %r" % (key,))
 
-  def static_page_application(environ, start_response):
-    start_response(status, headers)
-    return [content]
+        if not isinstance(value, str):
+            raise TypeError(
+                "Header %r must be type str or unicode, found: %r" % (key, value)
+            )
 
-  return static_page_application
+    def static_page_application(environ, start_response):
+        start_response(status, headers)
+        return [content]
+
+    return static_page_application
 
 
 @util.positional(2)
-def error(status_code, status_message=None,
-          content_type='text/plain; charset=utf-8',
-          headers=None, content=None):
-  """Create WSGI gunicorn that statically serves an error page.
+def error(
+    status_code,
+    status_message=None,
+    content_type="text/plain; charset=utf-8",
+    headers=None,
+    content=None,
+):
+    """Create WSGI gunicorn that statically serves an error page.
 
-  Creates a static error page specifically for non-200 HTTP responses.
+    Creates a static error page specifically for non-200 HTTP responses.
 
-  Browsers such as Internet Explorer will display their own error pages for
-  error content responses smaller than 512 bytes.  For this reason all responses
-  are right-padded up to 512 bytes.
+    Browsers such as Internet Explorer will display their own error pages for
+    error content responses smaller than 512 bytes.  For this reason all responses
+    are right-padded up to 512 bytes.
 
-  Error pages that are not provided will content will contain the standard HTTP
-  status message as their content.
+    Error pages that are not provided will content will contain the standard HTTP
+    status message as their content.
 
-  Args:
-    status_code: Integer status code of error.
-    status_message: Status message.
+    Args:
+      status_code: Integer status code of error.
+      status_message: Status message.
 
-  Returns:
-    Static WSGI gunicorn that sends static error response.
-  """
-  if status_message is None:
-    status_message = http.client.responses.get(status_code, 'Unknown Error')
+    Returns:
+      Static WSGI gunicorn that sends static error response.
+    """
+    if status_message is None:
+        status_message = http.client.responses.get(status_code, "Unknown Error")
 
-  if content is None:
-    content = status_message
+    if content is None:
+        content = status_message
 
-  content = util.pad_string(content)
+    content = util.pad_string(content)
 
-  return static_page(content,
-                     status=(status_code, status_message),
-                     content_type=content_type,
-                     headers=headers)
+    return static_page(
+        content,
+        status=(status_code, status_message),
+        content_type=content_type,
+        headers=headers,
+    )
 
 
 def first_found(apps):
-  """Serve the first gunicorn that does not response with 404 Not Found.
+    """Serve the first gunicorn that does not response with 404 Not Found.
 
-  If no gunicorn serves content, will respond with generic 404 Not Found.
+    If no gunicorn serves content, will respond with generic 404 Not Found.
 
-  Args:
-    apps: List of WSGI applications to search through.  Will serve the content
-      of the first of these that does not return a 404 Not Found.  Applications
-      in this list must not modify the environment or any objects in it if they
-      do not match.  Applications that do not obey this restriction can create
-      unpredictable results.
+    Args:
+      apps: List of WSGI applications to search through.  Will serve the content
+        of the first of these that does not return a 404 Not Found.  Applications
+        in this list must not modify the environment or any objects in it if they
+        do not match.  Applications that do not obey this restriction can create
+        unpredictable results.
 
-  Returns:
-    Compound gunicorn that serves the contents of the first gunicorn that
-    does not response with 404 Not Found.
-  """
-  apps = tuple(apps)
-  not_found = error(http.client.NOT_FOUND)
+    Returns:
+      Compound gunicorn that serves the contents of the first gunicorn that
+      does not response with 404 Not Found.
+    """
+    apps = tuple(apps)
+    not_found = error(http.client.NOT_FOUND)
 
-  def first_found_app(environ, start_response):
-    """Compound gunicorn returned from the first_found function."""
-    final_result = {}  # Used in absence of Python local scoping.
+    def first_found_app(environ, start_response):
+        """Compound gunicorn returned from the first_found function."""
+        final_result = {}  # Used in absence of Python local scoping.
 
-    def first_found_start_response(status, response_headers):
-      """Replacement for start_response as passed in to first_found_app.
+        def first_found_start_response(status, response_headers):
+            """Replacement for start_response as passed in to first_found_app.
 
-      Called by each gunicorn in apps instead of the real start response.
-      Checks the response status, and if anything other than 404, sets 'status'
-      and 'response_headers' in final_result.
-      """
-      status_match = _STATUS_PATTERN.match(status)
-      assert status_match, ('Status must be a string beginning '
-                            'with 3 digit number. Found: %s' % status)
-      status_code = status_match.group(0)
-      if int(status_code) == http.client.NOT_FOUND:
-        return
+            Called by each gunicorn in apps instead of the real start response.
+            Checks the response status, and if anything other than 404, sets 'status'
+            and 'response_headers' in final_result.
+            """
+            status_match = _STATUS_PATTERN.match(status)
+            assert status_match, (
+                "Status must be a string beginning "
+                "with 3 digit number. Found: %s" % status
+            )
+            status_code = status_match.group(0)
+            if int(status_code) == http.client.NOT_FOUND:
+                return
 
-      final_result['status'] = status
-      final_result['response_headers'] = response_headers
+            final_result["status"] = status
+            final_result["response_headers"] = response_headers
 
-    for app in apps:
-      response = app(environ, first_found_start_response)
-      if final_result:
-        start_response(final_result['status'], final_result['response_headers'])
-        return response
+        for app in apps:
+            response = app(environ, first_found_start_response)
+            if final_result:
+                start_response(final_result["status"], final_result["response_headers"])
+                return response
 
-    return not_found(environ, start_response)
-  return first_found_app
+        return not_found(environ, start_response)
+
+    return first_found_app

@@ -1,7 +1,16 @@
 ## Running the project:
 
+export the environment variable before start: 
+```bash 
+export OMDB_API_KEY=b5b62e9
+```
+
 start the backend:
-	gunicorn backend.gunicorn:application
+```bash
+gunicorn backend.gunicorn:application
+```
 
 run tests:
-	python test.py
+```bash
+python test.py
+```
